@@ -30,44 +30,40 @@ class Category:
     def __str__(self):
         return f"Category Name: {self.category_name}"
     
-class Budget:
-    def __init__(self, budget_amount: float):
-        self.budget_amount = budget_amount
+class Income:
+    def __init__(self, income: float):
+        self.income = income
 
-    def add_budget(self, amount: float):
+    def add_income(self, amount: float):
         if amount > 0:
-            self.budget_amount += amount
+            self.income += amount
         else:
             return f"Amount must be positive"
         
-    def deduct_budget(self, amount: float):
+    def deduct_income(self, amount: float):
         if amount > 0:
-            if amount <= self.budget_amount:
-                self.budget_amount -= amount
+            if amount <= self.self.income:
+                self.income -= amount
             else:
                 print("Insufficient funds")
         else:
             print("Amount must be positive")
 
     def __str__(self):
-        return f"Budget: ₦{self.budget_amount:.2f}"
+        return f"Income: ₦{self.income:.2f}"
 
 class ExpenseManager:
-    def __init__(self, budget: Budget, expenses = None, categories = None, total_expense = 0):
-        if expenses is None:
-            expenses = []
-        if categories is None:
-            categories = []
-        self.budget = budget
-        self.expenses = expenses
-        self.categories = categories
-        self.total_expense = total_expense
+    def __init__(self, income):
+        self.income = income
+        self.total_expense = 0
+        self.expenses = []
+        self.categories = []
 
     def add_expense(self, expense: Expense):
         if expense not in self.expenses:
             self.expenses.append(expense)
             self.total_expense += expense.expense_amount
-            self.budget.deduct_budget(expense.expense_amount)
+            self.income.deduct_income(expense.expense_amount)
         else:
             print(f"Expense '{expense}' already exists")
 
@@ -81,7 +77,7 @@ class ExpenseManager:
         try:    
             self.expenses.remove(expense)
             self.total_expense -= expense.expense_amount
-            self.budget.add_budget(expense.expense_amount)
+            self.income.add_income(expense.expense_amount)
         except ValueError:
             raise(f"Expense '{expense}' not found")
 
@@ -102,30 +98,3 @@ class ExpenseManager:
     def display_total_expense(self):
         print(f"Total Expense: ₦{self.total_expense:.2f}")
  
-
-# Example usage:
-budget = Budget(1000)
-expense_manager = ExpenseManager(budget)
-
-expense1 = Expense(25, 'Groceries', date.today())
-expense2 = Expense(79, 'Car Repair', date.today())
-
-expense_manager.add_expense(expense1)
-expense_manager.add_expense(expense2)
-
-category1 = Category('Groceries')
-category2 = Category('Car Maintenance')
-
-expense_manager.add_category(category1)
-expense_manager.add_category(category2)
-
-
-expense_manager.display_category()
-
-print(budget)
-expense_manager.display_total_expense()
-
-expense_manager.remove_expense(expense2)
-expense_manager.display_total_expense()
-expense_manager.display_expense()
-print(budget)
