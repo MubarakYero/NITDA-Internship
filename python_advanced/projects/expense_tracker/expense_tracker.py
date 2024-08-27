@@ -20,6 +20,10 @@ class Expense:
         if date is not None:
             self.date = date
 
+    def expense_stats(self, single_expense):
+        self.single_expense = []
+        self.single_expense.append(self.expense_amount)
+
     def __str__(self):
         return f"Amount: ₦{self.expense_amount}, Description: {self.expense_description}, Date: {self.date}"
 
@@ -29,33 +33,11 @@ class Category:
 
     def __str__(self):
         return f"Category Name: {self.category_name}"
-    
-class Income:
-    def __init__(self, income: float):
-        self.income = income
-
-    def add_income(self, amount: float):
-        if amount > 0:
-            self.income += amount
-        else:
-            return f"Amount must be positive"
-        
-    def deduct_income(self, amount: float):
-        if amount > 0:
-            if amount <= self.self.income:
-                self.income -= amount
-            else:
-                print("Insufficient funds")
-        else:
-            print("Amount must be positive")
-
-    def __str__(self):
-        return f"Income: ₦{self.income:.2f}"
 
 class ExpenseManager:
-    def __init__(self, income):
+    def __init__(self, income: float):
         self.income = income
-        self.total_expense = 0
+        self.total_expense = 0.0
         self.expenses = []
         self.categories = []
 
@@ -63,23 +45,23 @@ class ExpenseManager:
         if expense not in self.expenses:
             self.expenses.append(expense)
             self.total_expense += expense.expense_amount
-            self.income.deduct_income(expense.expense_amount)
+            self.income -= expense.expense_amount
         else:
             print(f"Expense '{expense}' already exists")
-
-    def add_category(self, category):
-        if category not in self.categories: 
-            self.categories.append(category)
-        else:
-            raise(f"Category '{category.category_name}' already exists.")
 
     def remove_expense(self, expense: Expense):
         try:    
             self.expenses.remove(expense)
             self.total_expense -= expense.expense_amount
-            self.income.add_income(expense.expense_amount)
+            self.income += expense.expense_amount
         except ValueError:
             raise(f"Expense '{expense}' not found")
+        
+    def add_category(self, category):
+        if category not in self.categories: 
+            self.categories.append(category)
+        else:
+            raise(f"Category '{category.category_name}' already exists.")
 
     def remove_category(self, category):
         try:
@@ -95,6 +77,25 @@ class ExpenseManager:
         for category in self.categories:
             print(category)
 
+    def display_income(self):
+        print(f"Remaining Income: ₦{self.income}")
+
     def display_total_expense(self):
         print(f"Total Expense: ₦{self.total_expense:.2f}")
- 
+
+
+
+# exp_manager = ExpenseManager(12000)
+
+# exp1 = Expense(1000, 'Party', date(2023, 8, 20))
+# exp2 = Expense(1500, 'Groceries', date(2023, 8, 21))
+
+# exp_manager.add_expense(exp1)
+# exp_manager.add_expense(exp2)
+
+# # exp_manager.display_expense()
+# exp_manager.display_total_expense()
+# exp_manager.display_income()
+
+# exp_manager.remove_expense(exp1)
+# exp_manager.display_total_expense()

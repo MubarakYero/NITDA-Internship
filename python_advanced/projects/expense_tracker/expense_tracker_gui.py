@@ -69,7 +69,9 @@ class ExpenseTrackerGUI(ctk.CTk):
         # Initialize the app
         self.setup_dialog = SetupDialog(self)
         self.wait_window(self.setup_dialog)
-        self.expense_manager = ExpenseManager(self.income)
+        self.income = float(self.income)
+        self.total_expense = 0
+        self.expense_manager = ExpenseManager(income=self.income)
 
         # Initialize UI components
         self.initialize_widgets()
@@ -78,7 +80,6 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.initialize_expense_tab()
         self.initialize_category_management()
         self.initialize_expense_table()
-        self.initialize_summary_frame()
         self.update_budget_label()
 
     def initialize_expense_tab(self):
@@ -106,7 +107,7 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.exp_tab_description_entry.grid(row=3, pady=(0, 0))
         self.exp_tab_category_label = ctk.CTkLabel(self.top_left_frame, text="Choose Category", font=cool_font)
         self.exp_tab_category_label.grid(pady=(5, 2))
-        self.exp_tab_category_menu = ctk.CTkOptionMenu(self.top_left_frame, values=[], font=cool_font, width=200)
+        self.exp_tab_category_menu = ctk.CTkOptionMenu(self.top_left_frame, values=['Food', 'Rent & Utilities', 'Transportation', 'Entertainment', ], font=cool_font, width=200)
         self.exp_tab_category_menu.set("Select Category")
         self.exp_tab_category_menu.grid(row=5, column=0, pady=(3, 0))
         self.exp_tab_amount_label = ctk.CTkLabel(self.top_left_frame, text="Amount", font=cool_font)
@@ -143,22 +144,63 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.add_cat_button.grid(row=4, column=0, pady=(10, 5))
         self.cat_delete_label = ctk.CTkLabel(self.bottom_left_frame, text="Delete Category", font=cool_font)
         self.cat_delete_label.grid(row=5, column=0, pady=(20, 0))
-        self.cat_tab_delete_menu = ctk.CTkOptionMenu(self.bottom_left_frame, values=[], font=cool_font, width=200)
+        self.cat_tab_delete_menu = ctk.CTkOptionMenu(self.bottom_left_frame, values=['Food', 'Rent & Utilities', 'Transportation', 'Entertainment', 'Health'], font=cool_font, width=200)
         self.cat_tab_delete_menu.set("Select Category")
         self.cat_tab_delete_menu.grid(row=6, column=0, pady=(0, 1))
         self.remove_cat_button = ctk.CTkButton(self.bottom_left_frame, text="Remove Category", font=cool_font, command=self.delete_category)
         self.remove_cat_button.grid(row=7, column=0, pady=(0, 20))
 
     def initialize_expense_table(self):
+        cool_font = ("Roboto", 14)
+        heading_font = ("Roboto", 16, "bold")
+
         # Expense table frame
         self.expense_table_frame = ctk.CTkFrame(self, border_width=2, height=500)
-        self.expense_table_frame.grid(row=0, column=1, padx=(0, 5), pady=(10), sticky="nsew")
+        self.expense_table_frame.grid(row=0, column=1, padx=(0, 5), pady=(10), rowspan=2, sticky="nsew")
         self.expense_table_frame.grid_rowconfigure(0, weight=0)
         self.expense_table_frame.grid_rowconfigure(1, weight=1)
+        self.expense_table_frame.grid_columnconfigure(1, weight=1)
 
         # expense table heading 
         self.heading_label = ctk.CTkLabel(self.expense_table_frame, text="Expenses", font=("Arial", 16, "bold"))
         self.heading_label.grid(row=0, padx=5, pady=(2, 0), sticky="nsew")
+
+        # summary frame
+        self.bottom_right = ctk.CTkFrame(self.expense_table_frame, border_width=2)
+        self.bottom_right.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+        self.bottom_right.grid_columnconfigure(0, weight=1)
+        self.bottom_right.grid_columnconfigure(1, weight=1)
+        self.bottom_right.grid_rowconfigure(0, weight=0)
+
+        # Left Frame
+        self.left_summary_frame = ctk.CTkFrame(self.bottom_right, border_width=2)
+        self.left_summary_frame.grid(row=1, column=0, padx=(10, 5), pady=(5, 10), sticky="nsew")
+
+        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
+        self.left_heading.grid(row=0, column=0, padx=10, pady=(5, 10), sticky='nsew')
+
+        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
+        self.left_heading.grid(row=1, column=0, padx=10, pady=(5, 10), sticky='nsew')
+
+        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
+        self.left_heading.grid(row=2, column=0, padx=10, pady=(5, 10), sticky='nsew')
+
+        # Right Frame
+        self.right_summary_frame = ctk.CTkFrame(self.bottom_right, border_width=2)
+        self.right_summary_frame.grid(row=1, column=1, padx=(5, 10), pady=(5, 10), sticky="nsew")
+
+        self.right_summary_frame.rowconfigure(0, weight=1)
+        self.right_summary_frame.rowconfigure(1, weight=1)
+        self.right_summary_frame.rowconfigure(2, weight=1)
+
+        self.right_heading = ctk.CTkLabel(self.right_summary_frame, text="Expense Summary", font=heading_font)
+        self.right_heading.grid(row=0, column=0, padx=10, pady=(5, 10), sticky='nsew')
+
+        self.income_label = ctk.CTkLabel(self.right_summary_frame, text=f"Total Income: {self.currency_symbol} {self.income}")
+        self.income_label.grid(row=1, padx=10, pady=10, sticky='nsew')
+
+        self.total_expense_label = ctk.CTkLabel(self.right_summary_frame, text=f"Total Expense: {self.currency_symbol} {self.total_expense}")
+        self.total_expense_label.grid(row=2, padx=10, pady=10, sticky='nsew')
 
         self.create_expense_table()
 
@@ -182,7 +224,7 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.expense_table.column("#3", anchor='center', width=100)
         self.expense_table.column("#4", anchor='center', width=100)
 
-        self.expense_table.grid(row=1, padx=10, pady=(0, 5), sticky='nsew')
+        self.expense_table.grid(row=1, padx=10, pady=(0, 5), rowspan=1, sticky='nsew')
 
         # Add a scrollbar if needed
         self.scrollbar = ttk.Scrollbar(self.expense_table_frame, orient="vertical", command=self.expense_table.yview)
@@ -193,34 +235,6 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.expense_table_frame.grid_columnconfigure(0, weight=1)
         self.expense_table_frame.grid_columnconfigure(1, weight=0)
 
-    def initialize_summary_frame(self):
-        heading_font = ("Roboto", 16, "bold")
-
-        # summary frame
-        self.bottom_right = ctk.CTkFrame(self, border_width=2)
-        self.bottom_right.grid(row=1, column=1, padx=(0, 10), pady=(0, 10), sticky="snew")
-        self.bottom_right.grid_columnconfigure(0, weight=1)
-        self.bottom_right.grid_columnconfigure(1, weight=1)
-        self.bottom_right.grid_rowconfigure(1, weight=1)
-
-        # Left Frame
-        self.left_summary_frame = ctk.CTkFrame(self.bottom_right, border_width=2)
-        self.left_summary_frame.grid(row=1, column=0, padx=(10, 5), pady=(5, 10), sticky="nsew")
-        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
-        self.left_heading.grid(row=0, column=0, padx=10, pady=(5, 10), sticky='nsew')
-
-        # Right Frame
-        self.right_summary_frame = ctk.CTkFrame(self.bottom_right, border_width=2)
-        self.right_summary_frame.grid(row=1, column=1, padx=(5, 10), pady=(5, 10), sticky="nsew")
-        self.right_heading = ctk.CTkLabel(self.right_summary_frame, text="Total Expense", font=heading_font)
-        self.right_heading.grid(row=0, column=0, padx=10, pady=(5, 10), sticky='nsew')
-
-        self.income_label = ctk.CTkLabel(self.left_summary_frame, text=f"Budget: {self.currency_symbol} {self.income}", font=heading_font)
-        self.income_label.grid(row=0, column=1, padx=10, pady=(10, 0), sticky='nsew')
-
-    def update_budget_label(self):
-        self.income_label.configure(text=f"Budget: {self.currency_symbol} {self.income}")
-
     def add_expense(self):
         description = self.exp_tab_description_entry.get().title()
         category = self.exp_tab_category_menu.get().title()
@@ -228,12 +242,27 @@ class ExpenseTrackerGUI(ctk.CTk):
         amount = float(self.exp_tab_amount_entry.get())
         formatted_amount = f"{self.currency_symbol} {amount:.2f}"
 
+        self.income -= amount
+
+        expense = Expense(expense_amount=amount, expense_description=description, date=date)
+        self.expense_manager.add_expense(expense)
+
         self.expense_table.insert("", "end", values=(description, category, date, formatted_amount))
 
         self.exp_tab_description_entry.delete(0, 'end')
         self.exp_tab_category_menu.set("Select Category")
         self.exp_tab_date_entry.set_date(datetime.today())
         self.exp_tab_amount_entry.delete(0, 'end')
+
+        self.update_total_expense_label()
+        self.update_budget_label()
+
+    def update_total_expense_label(self):
+        total_expense = self.expense_manager.total_expense
+        self.total_expense_label.configure(text=f"Total Expense {self.currency_symbol} {total_expense:.2f}")
+
+    def update_budget_label(self):
+        self.income_label.configure(text=f"Income: {self.currency_symbol} {float(self.income)}")
 
     def add_category(self):
         category_name = self.cat_name_entry.get()
@@ -265,8 +294,7 @@ class ExpenseTrackerGUI(ctk.CTk):
                     self.cat_tab_delete_menu.set("Select Category")
                     self.exp_tab_category_menu.set("Select Category")
                 except Exception as e:
-                    print(e)  # For now, simply print the error
-
+                    print(e)
 
 app = ExpenseTrackerGUI()
 app.mainloop()
