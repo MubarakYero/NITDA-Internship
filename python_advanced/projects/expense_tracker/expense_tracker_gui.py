@@ -73,6 +73,8 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.total_expense = 0
         self.expense_manager = ExpenseManager(income=self.income)
 
+        self.initial_income = f"{self.currency_symbol}{self.income}"
+
         # Initialize UI components
         self.initialize_widgets()
 
@@ -153,6 +155,7 @@ class ExpenseTrackerGUI(ctk.CTk):
     def initialize_expense_table(self):
         cool_font = ("Roboto", 14)
         heading_font = ("Roboto", 16, "bold")
+        amount_font = ("Roboto", 20, "bold")
 
         # Expense table frame
         self.expense_table_frame = ctk.CTkFrame(self, border_width=2, height=500)
@@ -166,42 +169,49 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.heading_label.grid(row=0, padx=5, pady=(2, 0), sticky="nsew")
 
         # summary frame
-        self.bottom_right = ctk.CTkFrame(self.expense_table_frame, border_width=2)
-        self.bottom_right.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
-        self.bottom_right.grid_columnconfigure(0, weight=1)
-        self.bottom_right.grid_columnconfigure(1, weight=1)
-        self.bottom_right.grid_rowconfigure(0, weight=0)
+        self.summary_frame = ctk.CTkFrame(self.expense_table_frame, border_width=2)
+        self.summary_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+        self.summary_frame.grid_columnconfigure(0, weight=1)
+        self.summary_frame.grid_columnconfigure(1, weight=1)
+        self.summary_frame.grid_columnconfigure(2, weight=1)
+        self.summary_frame.grid_rowconfigure(0, weight=1)
 
         # Left Frame
-        self.left_summary_frame = ctk.CTkFrame(self.bottom_right, border_width=2)
-        self.left_summary_frame.grid(row=1, column=0, padx=(10, 5), pady=(5, 10), sticky="nsew")
+        self.left_summary_frame = ctk.CTkFrame(self.summary_frame, border_width=2, fg_color='white')
+        self.left_summary_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        self.left_summary_frame.grid_rowconfigure(0, weight=1)
+        self.left_summary_frame.grid_columnconfigure(0, weight=1)
 
-        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
-        self.left_heading.grid(row=0, column=0, padx=10, pady=(5, 10), sticky='nsew')
+        self.income_heading = ctk.CTkLabel(self.left_summary_frame, text="Income", font=heading_font)
+        self.income_heading.grid(padx=10, pady=(5, 5), sticky='nsew')
 
-        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
-        self.left_heading.grid(row=1, column=0, padx=10, pady=(5, 10), sticky='nsew')
+        self.income_label = ctk.CTkLabel(self.left_summary_frame, text=f"{self.initial_income}", font=amount_font)
+        self.income_label.grid(row=1, padx=10, pady=(0 ,10), sticky='nsew')
 
-        self.left_heading = ctk.CTkLabel(self.left_summary_frame, text="Expense Chart", font=heading_font)
-        self.left_heading.grid(row=2, column=0, padx=10, pady=(5, 10), sticky='nsew')
+        # Middle Frmae - Total Expense
+        self.middle_summary_frame = ctk.CTkFrame(self.summary_frame, border_width=2, fg_color='white')
+        self.middle_summary_frame.grid(row=0, column=1, pady=10, sticky="nsew")
+        self.middle_summary_frame.grid_rowconfigure(0, weight=1)
+        self.middle_summary_frame.grid_columnconfigure(0, weight=1)
 
-        # Right Frame
-        self.right_summary_frame = ctk.CTkFrame(self.bottom_right, border_width=2)
-        self.right_summary_frame.grid(row=1, column=1, padx=(5, 10), pady=(5, 10), sticky="nsew")
+        self.middle_heading = ctk.CTkLabel(self.middle_summary_frame, text="Total Expense", font=heading_font)
+        self.middle_heading.grid(row=0, column=0, padx=10, pady=(5, 5), sticky='nsew')
 
-        self.right_summary_frame.rowconfigure(0, weight=1)
-        self.right_summary_frame.rowconfigure(1, weight=1)
-        self.right_summary_frame.rowconfigure(2, weight=1)
+        self.total_expense_label = ctk.CTkLabel(self.middle_summary_frame, text=f"{self.currency_symbol} {self.total_expense}", font=amount_font)
+        self.total_expense_label.grid(row=2, padx=10, pady=(0, 10), sticky='nsew')
 
-        self.right_heading = ctk.CTkLabel(self.right_summary_frame, text="Expense Summary", font=heading_font)
-        self.right_heading.grid(row=0, column=0, padx=10, pady=(5, 10), sticky='nsew')
+        # Right Frame - Amount Left
+        self.right_summary_frame = ctk.CTkFrame(self.summary_frame, border_width=2, fg_color='white')
+        self.right_summary_frame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+        self.right_summary_frame.grid_rowconfigure(0, weight=1)
+        self.right_summary_frame.grid_columnconfigure(0, weight=1)
 
-        self.income_label = ctk.CTkLabel(self.right_summary_frame, text=f"Total Income: {self.currency_symbol} {self.income}")
-        self.income_label.grid(row=1, padx=10, pady=10, sticky='nsew')
+        self.right_heading = ctk.CTkLabel(self.right_summary_frame, text="Amount left", font=heading_font)
+        self.right_heading.grid(row=0, column=0, padx=10, pady=(5, 5), sticky='nsew')
 
-        self.total_expense_label = ctk.CTkLabel(self.right_summary_frame, text=f"Total Expense: {self.currency_symbol} {self.total_expense}")
-        self.total_expense_label.grid(row=2, padx=10, pady=10, sticky='nsew')
-
+        self.amount_left_label = ctk.CTkLabel(self.right_summary_frame, text=f"{self.currency_symbol} {self.income}", font=amount_font)
+        self.amount_left_label.grid(padx=10, pady=(0, 10), sticky='nsew')
+        
         self.create_expense_table()
 
     def create_expense_table(self):
@@ -259,10 +269,10 @@ class ExpenseTrackerGUI(ctk.CTk):
 
     def update_total_expense_label(self):
         total_expense = self.expense_manager.total_expense
-        self.total_expense_label.configure(text=f"Total Expense {self.currency_symbol} {total_expense:.2f}")
+        self.total_expense_label.configure(text=f"{self.currency_symbol} {total_expense:.2f}")
 
     def update_budget_label(self):
-        self.income_label.configure(text=f"Income: {self.currency_symbol} {float(self.income)}")
+        self.amount_left_label.configure(text=f"{self.currency_symbol} {float(self.income)}")
 
     def add_category(self):
         category_name = self.cat_name_entry.get()
