@@ -1,6 +1,3 @@
-# Expense tracker
-# Expense class to handle individual expenses
-
 from datetime import date
 
 class Expense:
@@ -19,14 +16,7 @@ class Expense:
             self.description = expense_description
         if date is not None:
             self.date = date
-
-    def expense_stats(self, single_expense):
-        self.single_expense = []
-        self.single_expense.append(self.expense_amount)
-
-    def __str__(self):
-        return f"Amount: ₦{self.expense_amount}, Description: {self.expense_description}, Date: {self.date}"
-
+            
 class Category:
     def __init__(self, category_name):
         self.category_name = category_name
@@ -35,9 +25,10 @@ class Category:
         return f"Category Name: {self.category_name}"
 
 class ExpenseManager:
-    def __init__(self, income: float):
+    def __init__(self, income):
         self.income = income
         self.total_expense = 0.0
+        self.amount_left = self.income - self.total_expense
         self.expenses = []
         self.categories = []
 
@@ -82,8 +73,6 @@ class ExpenseManager:
 
     def display_total_expense(self):
         print(f"Total Expense: ₦{self.total_expense:.2f}")
-
-
 
 # exp_manager = ExpenseManager(12000)
 

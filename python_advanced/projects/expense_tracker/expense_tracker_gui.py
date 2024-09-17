@@ -64,13 +64,13 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.grid_columnconfigure(1, weight=1)
 
         self.currency_symbol = ""
-        self.income = 0
+        self.income = 0.0
 
         # Initialize the app
         self.setup_dialog = SetupDialog(self)
         self.wait_window(self.setup_dialog)
         self.income = float(self.income)
-        self.total_expense = 0
+        self.total_expense = 0.0
         self.expense_manager = ExpenseManager(income=self.income)
 
         self.initial_income = f"{self.currency_symbol}{self.income}"
@@ -168,6 +168,10 @@ class ExpenseTrackerGUI(ctk.CTk):
         self.heading_label = ctk.CTkLabel(self.expense_table_frame, text="Expenses", font=("Arial", 16, "bold"))
         self.heading_label.grid(row=0, padx=5, pady=(2, 0), sticky="nsew")
 
+        # Save expense Button
+        self.save_expense_button = ctk.CTkButton(self.expense_table_frame, text='Clear',width=60 , font=cool_font, command=self.clear_expenses)
+        self.save_expense_button.grid(row=0, padx=10, pady=(10, 5)  , sticky='e')
+
         # summary frame
         self.summary_frame = ctk.CTkFrame(self.expense_table_frame, border_width=2)
         self.summary_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
@@ -250,7 +254,7 @@ class ExpenseTrackerGUI(ctk.CTk):
         category = self.exp_tab_category_menu.get().title()
         date = self.exp_tab_date_entry.get_date()
         amount = float(self.exp_tab_amount_entry.get())
-        formatted_amount = f"{self.currency_symbol} {amount:.2f}"
+        formatted_amount = f"{self.currency_symbol}{amount:,.2f}"
 
         self.income -= amount
 
@@ -266,13 +270,6 @@ class ExpenseTrackerGUI(ctk.CTk):
 
         self.update_total_expense_label()
         self.update_budget_label()
-
-    def update_total_expense_label(self):
-        total_expense = self.expense_manager.total_expense
-        self.total_expense_label.configure(text=f"{self.currency_symbol} {total_expense:.2f}")
-
-    def update_budget_label(self):
-        self.amount_left_label.configure(text=f"{self.currency_symbol} {float(self.income)}")
 
     def add_category(self):
         category_name = self.cat_name_entry.get()
@@ -306,5 +303,29 @@ class ExpenseTrackerGUI(ctk.CTk):
                 except Exception as e:
                     print(e)
 
+    def update_total_expense_label(self):
+        total_expense = self.expense_manager.total_expense
+        self.total_expense_label.configure(text=f"{self.currency_symbol} {total_expense:,.2f}")
+
+    def update_budget_label(self):
+        self.amount_left_label.configure(text=f"{self.currency_symbol} {self.income:,.2f}")
+
+    def update_amount_left_label(self):
+        amount_left = self.expense_manager.amount_left
+        self.amount_left_label.configure(text=f"{self.currency_symbol} {amount_left:,.2f}")
+
+
+    def clear_expenses(self):
+        for item in self.expense_table.get_children():
+            self.expense_table.delete(item)
+            
+        self.expenses = []
+        self.expense_manager.total_expense = 0.0
+
+        self.update_total_expense_label()
+        self.update_amount_left_label()
+
+
 app = ExpenseTrackerGUI()
 app.mainloop()
+
